@@ -14,6 +14,7 @@ functions_/
         ├── api_1.js
         ├── ...
     ├── src/
+        ├── routes/
         ├── templates/
             ├── footer.html
             ├── header.html
@@ -55,8 +56,8 @@ Ensure you have the following installed:
 Clone the repository and install the dependencies:
 
 ```sh
-git clone https://github.com/ibercovich/vanilla-cloudflare-pages.git
-cd vanilla-cloudflare-pages
+git clone https://github.com/ibercovich/super-vanilla-cloudflare-pages
+cd super-vanilla-cloudflare-pages
 npm install
 ```
 
