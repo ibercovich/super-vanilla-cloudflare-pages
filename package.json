@@ -1,0 +1,29 @@
+{
+	"name": "vanilla",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "node build.js",
+		"reloader": "browser-sync start --config bs-config.cjs",
+		"dev": "nodemon"
+	},
+	"nodemonConfig": {
+		"watch": [
+			"functions_"
+		],
+		"ext": "js , css, html, json",
+		"ignore": [
+			"*.gen.*"
+		],
+		"exec": "node build.js && wrangler pages dev"
+	},
+	"devDependencies": {
+		"esbuild": "^0.21.3",
+		"nodemon": "^3.1.0",
+		"wrangler": "^3.57.0"
+	},
+	"dependencies": {
+		"mustache": "^4.2.0"
+	}
+}
