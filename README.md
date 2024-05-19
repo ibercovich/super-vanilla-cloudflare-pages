@@ -1,5 +1,11 @@
 # Super Vanilla Cloudflare Pages
 
+## Still missing
+
+- Form and data validation
+- Debugger implementation
+- Authentication
+
 ## Overview
 
 Vanilla Cloudflare Pages provides a minimalistic, full-stack solution for deploying Cloudflare Pages without relying on any frameworks. This project aims to leverage the power of automatically turning scripts inside the `/functions` folder into workers, combined with the most basic JavaScript capabilities, reminiscent of old-school PHP or CGI setups.
@@ -20,6 +26,10 @@ functions_/
             ├── index.html
             ├── .gen.js
         ├── utils.js
+    ├── contacts/  # a sample app
+        ├── templates/
+            ├── [[catchall]].js # main router for app
+            ├── test.js
 index.js
 dynamic_page_2.js
 pages/

@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./",
+		"paths": {
+			"@/*": ["functions_/src/*"] // Adjust this to match your directory structure
+		}
+	},
+	"include": [
+		"./**/*" // Adjust this to match your directory structure
+	]
+}

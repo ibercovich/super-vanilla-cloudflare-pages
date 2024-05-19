@@ -21,5 +21,20 @@
 	"prettier.singleQuote": true,
 	"prettier.semi": true,
 	"prettier.trailingComma": "es5",
-	"prettier.useTabs": true
+	"prettier.useTabs": true,
+	"prettier.htmlWhitespaceSensitivity": "ignore",
+	"[html]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"javascript.validate.enable": true,
+	"js/ts.implicitProjectConfig.checkJs": true,
+	"javascript.suggest.autoImports": true,
+	"javascript.preferences.importModuleSpecifier": "relative",
+	"editor.parameterHints.enabled": true,
+	"editor.hover.enabled": true,
+	"editor.tabCompletion": "on",
+	"editor.suggest.showKeywords": true,
+	"editor.suggest.showFunctions": true,
+	"editor.suggest.showClasses": true,
+	"editor.suggest.showMethods": true
 }

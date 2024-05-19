@@ -21,9 +21,11 @@
 	"devDependencies": {
 		"esbuild": "^0.21.3",
 		"nodemon": "^3.1.0",
+		"prettier": "^3.2.5",
 		"wrangler": "^3.57.0"
 	},
 	"dependencies": {
-		"mustache": "^4.2.0"
+		"mustache": "^4.2.0",
+		"url-pattern": "^1.0.3"
 	}
 }

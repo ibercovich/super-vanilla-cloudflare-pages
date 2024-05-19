@@ -14,9 +14,6 @@
 				firstTimestamp = newTimestamp;
 			}
 
-			console.log(firstTimestamp);
-			console.log(newTimestamp);
-
 			if (newTimestamp !== firstTimestamp) {
 				firstTimestamp = newTimestamp;
 				location.reload();

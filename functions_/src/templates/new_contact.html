@@ -1,0 +1,47 @@
+<form action="/contacts/{{{ action }}}" method="post" class="box" id="myForm">
+	<fieldset class="field">
+		<legend class="label">Contact Values</legend>
+
+		<div class="field">
+			<label class="label" for="email">Email</label>
+			<div class="control">
+				<input class="input" name="email" id="email" type="email" placeholder="Email" value="{{ contact.email }}" required />
+			</div>
+			<p class="help is-danger">{{ contact.errors.email }}</p>
+		</div>
+
+		<div class="field">
+			<label class="label" for="first_name">First Name</label>
+			<div class="control">
+				<input class="input" name="first_name" id="first_name" type="text" placeholder="First Name" value="{{ contact.first_name }}" />
+			</div>
+			<p class="help is-danger">{{ contact.errors.first }}</p>
+		</div>
+
+		<div class="field">
+			<label class="label" for="last_name">Last Name</label>
+			<div class="control">
+				<input class="input" name="last_name" id="last_name" type="text" placeholder="Last Name" value="{{ contact.last_name }}" />
+			</div>
+			<p class="help is-danger">{{ contact.errors.last }}</p>
+		</div>
+
+		<div class="field">
+			<label class="label" for="phone">Phone</label>
+			<div class="control">
+				<input class="input" type="tel" id="phone" name="phone" value="{{ contact.phone }}" required />
+			</div>
+			<p class="help is-danger">{{ contact.errors.phone }}</p>
+		</div>
+
+		<div class="field">
+			<div class="control">
+				<button class="button is-primary">Save</button>
+			</div>
+		</div>
+	</fieldset>
+</form>
+
+<p>
+	<a class="button is-light" href="/contacts">Back</a>
+</p>

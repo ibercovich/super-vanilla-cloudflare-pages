@@ -6,8 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "featherly"
-database_id = "c0b83bd6-1101-47ad-8df1-b91ae31d0e51"
+database_name = "DB_NAME"
+database_id = "DB_ID"
 
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Worker, running it closer to your back-end infrastructure
