@@ -28,9 +28,8 @@ functions_/
             ├── .gen.js
         ├── utils.js
     ├── contacts/  # a sample app
-        ├── templates/
-            ├── [[catchall]].js # main router for app
-            ├── test.js
+        ├── [[catchall]].js # main router for app
+        ├── test.js
 index.js
 dynamic_page_2.js
 pages/
