@@ -7,7 +7,6 @@
   - in conjuction with validator.js for complex validation (e.g. phone number)
   - A single schema should result in both sql creation and querying
   - And also form generation in HTML (e.g. generate form for Schema X)
-  - reach out to https://massadas.com to share project
 
 ## Overview
 
