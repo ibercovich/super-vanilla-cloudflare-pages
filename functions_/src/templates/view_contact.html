@@ -1,11 +1,15 @@
-<h1>{{ contact.first_name }} {{ contact.last_name }}</h1>
+<main class="section">
+	<div class="container" id="content">
+		<h1>{{ first_name }} {{ last_name }}</h1>
 
-<div>
-	<div>Phone: {{ contact.phone }}</div>
-	<div>Email: {{ contact.email }}</div>
-</div>
+		<div>
+			<div>Phone: {{ phone }}</div>
+			<div>Email: {{ email }}</div>
+		</div>
 
-<p>
-	<a href="/contacts/{{ contact.id }}/edit">Edit</a>
-	<a href="/contacts">Back</a>
-</p>
+		<p>
+			{{> controls}}
+			<a class="button is-small is-warning" href="/contacts">Back</a>
+		</p>
+	</div>
+</main>

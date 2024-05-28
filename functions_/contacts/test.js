@@ -1,9 +1,9 @@
-import { DBinsertOne, DBupdateOne } from '@/utils';
+import DB from '@/db';
 
 export async function onRequestGet(context) {
-	const result1 = await DBinsertOne(context.env.DB, 'contacts', getTestContact());
+	const result1 = await DB.insertOne(context.env.DB, 'contacts', getTestContact());
 
-	const result2 = await DBupdateOne(context.env.DB, 'contacts', getTestContact(), '3');
+	const result2 = await DB.updateOne(context.env.DB, 'contacts', getTestContact(), '3');
 
 	const response = { 'Insert Test': result1, 'Update Test': result2 };
 
@@ -13,8 +13,8 @@ export async function onRequestGet(context) {
 function getTestContact() {
 	return {
 		first_name: 'Tasty',
-		last_name: 'McTest',
-		email: 'tasty@test.yum' + Math.floor(Math.random() * 100).toString(),
-		phone: '666-555-57' + Math.floor(Math.random() * 100).toString(),
+		last_name: 'McTesteess',
+		email: 'tasty@testees.yum' + Math.floor(Math.random() * 100).toString(),
+		phone: '66667-5555-577' + Math.floor(Math.random() * 100).toString(),
 	};
 }

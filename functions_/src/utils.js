@@ -1,13 +1,33 @@
 import Mustache from 'mustache';
-import * as Templates from '@/templates/.gen';
+// https://ejs.co/#docs // alternative in case mustache becomes limiting
+import * as T from '@/templates/.gen';
+import _404 from '../../pages/404.html';
 
-export async function renderTemplate(name, data) {
-	// https://github.com/janl/mustache.js
-	let tpl = '';
-	if (name in Templates) {
-		tpl = Templates[name];
-	}
-	const html = await Mustache.render(Templates['index'], data, { content: tpl });
+// Join the strings and values to return the final HTML string
+// This is a simple version that lacks features of larger libraries
+// if using _validator_ library, use escape utility from there
+const escapeHTML = (str) => str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+export const html = (strings, ...values) =>
+	strings.reduce(
+		(result, string, i) => result + string + (values[i] != null ? (typeof values[i] === 'string' ? escapeHTML(values[i]) : values[i]) : ''),
+		''
+	);
+
+export function render404() {
+	const content = _404;
+	const html = Mustache.render(T.index, { title: 'Not Found' }, { content });
+	return new Response(html, {
+		status: 404,
+		headers: {
+			'Content-Type': 'text/html',
+			'Cache-Control': 'no-cache',
+		},
+	});
+}
+
+export function renderTemplate(template, data, partials) {
+	// https://github.com/janl/mustache.jss
+	const html = Mustache.render(template, data, partials);
 	return new Response(html, {
 		headers: { 'Content-Type': 'text/html' },
 	});
@@ -24,9 +44,9 @@ export async function readRequestBody(request) {
 		if (contentType.includes('application/json')) {
 			return await request.json();
 		} else if (contentType.includes('application/text')) {
-			return request.text();
+			return await request.text();
 		} else if (contentType.includes('text/html')) {
-			return request.text();
+			return await request.text();
 		} else if (contentType.includes('form')) {
 			const formData = await request.formData();
 			const body = {};
@@ -39,105 +59,5 @@ export async function readRequestBody(request) {
 			// like an image, or some other binary data.
 			return 'a file';
 		}
-	}
-}
-
-/**
- *
- * @param {Object} DB : binding to a D1 database
- * @param {string} table : table name
- * @param {Object} obj : key value pairs for insertion
- */
-export async function DBinsertOne(DB, table, obj) {
-	let fields = [];
-	let values = [];
-
-	Object.entries(obj).forEach(([key, value]) => {
-		fields.push(key);
-		values.push(value);
-	});
-
-	let query = `INSERT INTO ${table} (${fields.join(',')}) VALUES (${Array(fields.length).fill('?').join(', ')})`;
-
-	try {
-		return await DB.prepare(query)
-			.bind(...values)
-			.run();
-	} catch (error) {
-		// Code to handle the error
-		const niceError = JSON.stringify(error, null, 4);
-		console.error('An error occurred:', niceError);
-		return niceError;
-	}
-}
-
-/**
- *
- * @param {Object} DB : binding to a D1 database
- * @param {string} table : table name
- * @param {Object} obj : key value pairs for update
- * @param {string|number} id : the id of the record to be updated
- */
-export async function DBupdateOne(DB, table, obj, id) {
-	let fields = [];
-	let values = [];
-
-	Object.entries(obj).forEach(([key, value]) => {
-		fields.push(`${key} = ?`);
-		values.push(value);
-	});
-
-	values.push(id);
-
-	let query = `UPDATE ${table} SET ${fields.join(', ')} WHERE id = ?`;
-
-	const preparedQuery = await DB.prepare(query).bind(...values);
-	return await preparedQuery.run();
-}
-
-/**
- *
- * @param {Object} DB : binding to a D1 database
- * @param {string} table : table name
- * @param {Object} filters : key value pairs for filtering
- *
- * Only eq, case sensitive for strings,  doesn't support like
- */
-export async function DBgetMany(DB, table, filters) {
-	let fields = [];
-	let values = [];
-
-	if (filters) {
-		Object.entries(filters).forEach(([key, value]) => {
-			fields.push(`${key} = ?`);
-			values.push(value);
-		});
-	}
-
-	let query = `SELECT * FROM ${table} `;
-	if (fields.length) {
-		query += `WHERE ${fields.join(' AND ')}`;
-	}
-
-	let preparedQuery = await DB.prepare(query);
-
-	if (fields.length) {
-		preparedQuery = await preparedQuery.bind(...values);
-	}
-
-	const { results } = await preparedQuery.run();
-	return results;
-}
-
-export async function DBdeleteById(DB, id) {
-	const query = 'DELETE FROM contacts WHERE id = ?';
-
-	try {
-		return await DB.prepare(query).bind(id).run();
-	} catch (error) {
-		// Code to handle the error
-		const niceError = JSON.stringify(error, null, 4);
-		console.error('An error occurred:', niceError);
-		return niceError;
 	}
 }

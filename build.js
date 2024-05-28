@@ -30,9 +30,12 @@ const bulkImports = (type, ext) => {
 	const dir = path.join(CONF.src, type);
 	const dest = path.join(dir, `.gen.js`);
 	fs.rmSync(dest, { force: true }); //delete existing
-	const files = getAll(dir, ext).map((_path) => path.basename(_path, ext));
-	const imports = files.map((file) => `import ${file} from '@/${type}/${file}${ext}';`).join('\n');
-	const exports = `export { ${files.join(', ')} };`;
+	const files = getAll(dir, ext).map((_path) => ({
+		name: path.basename(_path, ext),
+		relativePath: path.relative(CONF.src, _path).replace(/\\/g, '/'),
+	}));
+	const imports = files.map(({ name, relativePath }) => `import ${name} from '@/${relativePath}';`).join('\n');
+	const exports = `export { ${files.map((f) => f.name).join(', ')} };`;
 	fs.writeFileSync(dest, `${imports}\n\n${exports}\n`, 'utf8');
 };
 
@@ -50,7 +53,7 @@ const main = async () => {
 			outdir: CONF.outdir,
 			bundle: true,
 			minify: true,
-			sourcemap: false,
+			sourcemap: true, //should turn them off in prod
 			target: 'es2015',
 			format: 'esm',
 			splitting: true,

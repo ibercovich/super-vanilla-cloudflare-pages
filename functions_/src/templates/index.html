@@ -1,39 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-    <title>Basic Index Page</title>
-</head>
-
-<body>
-    <script>
-        if (window.location.hostname === 'localhost') {
-            const script = document.createElement('script');
-            script.src = '/dev-refresh.js'; // Adjust the path as needed
-            document.head.appendChild(script);
-        }
-    </script>
-
-    <header class="section">
-        <div class="container">
-            <h1 class="title">Welcome to My Website</h1>
-        </div>
-    </header>
-
-    <main class="section">
-        <div class="container">
-            {{> content}}
-        </div>
-    </main>
-
-    <footer class="footer">
-        <div class="content has-text-centered">
-            <p>&copy; 2024 Ivan Bercovich</p>
-        </div>
-    </footer>
-</body>
-
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" crossorigin="anonymous" />
+		<script
+			src="https://unpkg.com/htmx.org@1.9.12"
+			integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+			crossorigin="anonymous"
+		></script>
+		<script>
+			if (window.location.hostname === 'localhost') {
+				const script = document.createElement('script');
+				script.src = '/dev-refresh.js';
+				document.head.appendChild(script);
+			}
+		</script>
+		<title>{{ title }}</title>
+	</head>
+	<body hx-boost="true">
+		{{> content}}
+	</body>
 </html>

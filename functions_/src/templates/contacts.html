@@ -1,43 +1,41 @@
-<form action="/contacts" method="get" class="tool-bar">
-	<div class="field has-addons">
-		<div class="control">
-			<input class="input" id="search" type="search" name="q" value="{{ q }}" />
-		</div>
-		<div class="control">
-			<button class="button is-link" type="submit">Search</button>
-		</div>
+<main class="section">
+	<div class="container" id="content">
+		<form action="/contacts" method="get" class="tool-bar">
+			<div class="field has-addons">
+				<div class="control">
+					<input class="input" id="search" type="search" name="q" value="{{ q }}" />
+				</div>
+				<div class="control">
+					<button class="button is-link" type="submit">Search</button>
+				</div>
+			</div>
+		</form>
+
+		<table class="table is-fullwidth is-striped">
+			<thead>
+				<tr>
+					<th>Firsty</th>
+					<th>Lasty</th>
+					<th>Phoney</th>
+					<th>Emaily</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#contacts}}
+				<tr>
+					<td>{{ first_name }}</td>
+					<td>{{ last_name }}</td>
+					<td>{{ phone }}</td>
+					<td>{{ email }}</td>
+					<td>{{> controls}}</td>
+				</tr>
+				{{/contacts}}
+			</tbody>
+		</table>
+
+		<p>
+			<a class="button is-success" href="/contacts/new">Add Contact</a>
+		</p>
 	</div>
-</form>
-
-<table class="table is-fullwidth is-striped">
-	<thead>
-		<tr>
-			<th>First</th>
-			<th>Last</th>
-			<th>Phone</th>
-			<th>Email</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		{{#contacts}}
-		<tr>
-			<td>{{ first_name }}</td>
-			<td>{{ last_name }}</td>
-			<td>{{ phone }}</td>
-			<td>{{ email }}</td>
-			<td>
-				<a class="button is-small is-info" href="/contacts/{{ id }}/edit">Edit</a>
-				<a class="button is-small is-primary" href="/contacts/{{ id }}">View</a>
-				<form action="/contacts/{{ id }}/delete" method="POST" style="display: inline">
-					<button type="submit" class="button is-small is-danger">Delete</button>
-				</form>
-			</td>
-		</tr>
-		{{/contacts}}
-	</tbody>
-</table>
-
-<p>
-	<a class="button is-success" href="/contacts/new">Add Contact</a>
-</p>
+</main>
