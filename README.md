@@ -7,18 +7,6 @@
   - in conjuction with validator.js for complex validation (e.g. phone number)
   - A single schema should result in both sql creation and querying
   - And also form generation in HTML (e.g. generate form for Schema X)
-<<<<<<< HEAD
-  - reach out to https://massadas.com to share project
-- Authentication
-  - Add header with login/logout button
-  - Have htmx communicate authentication errors back to user
-  - Need permissions
-  - Need better separation from routing (in utils) and auth. They depend on each other
-  - Move authentication queries to db.js
-- Routing
-  - maybe it makes sense to have a single main entry point to capture authentication /etc once
-=======
->>>>>>> e542f8fa6a05bc537860a5db688902ecad2bf8a6
 
 ## Overview
 
