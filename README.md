@@ -8,6 +8,14 @@
   - A single schema should result in both sql creation and querying
   - And also form generation in HTML (e.g. generate form for Schema X)
   - reach out to https://massadas.com to share project
+- Authentication
+  - Add header with login/logout button
+  - Have htmx communicate authentication errors back to user
+  - Need permissions
+  - Need better separation from routing (in utils) and auth. They depend on each other
+  - Move authentication queries to db.js
+- Routing
+  - maybe it makes sense to have a single main entry point to capture authentication /etc once
 
 ## Overview
 
@@ -43,11 +51,11 @@ dynamic_page_2.js
 pages/
     ├── 404.html
     ├── static_page_2.html
-    ├── buildts.gen.json
-    ├── dev-refresh.js
-build.js
+    ├── buildts.gen.json        #a timestamp of the last build, for local use only
+    ├── dev-refresh.js          #refreshes the page every few seconds for dev
+build.js                        #build script using esbuild
 package.json
-schema.sql
+schema.sql                      #initial config for demo database
 wrangler.toml
 ```
 

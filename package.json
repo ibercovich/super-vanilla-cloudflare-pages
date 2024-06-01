@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "node build.js",
+		"deploy": "node build.js --production",
 		"reloader": "browser-sync start --config bs-config.cjs",
 		"dev": "nodemon"
 	},

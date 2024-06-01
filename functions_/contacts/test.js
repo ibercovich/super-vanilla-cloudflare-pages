@@ -1,11 +1,15 @@
-import DB from '@/db';
+import { DB, DBService } from '@/db';
 
 export async function onRequestGet(context) {
-	const result1 = await DB.insertOne(context.env.DB, 'contacts', getTestContact());
+	const _DB = new DBService(context.env.DB);
 
-	const result2 = await DB.updateOne(context.env.DB, 'contacts', getTestContact(), '3');
+	const result1 = await _DB.insertOne('contacts', getTestContact());
 
-	const response = { 'Insert Test': result1, 'Update Test': result2 };
+	const result2 = await _DB.updateOne('contacts', getTestContact(), { id: 3 });
+
+	const result3 = await _DB.queryAll('contacts');
+
+	const response = { 'Insert Test': result1, 'Update Test': result2, 'Query All Test': result3 };
 
 	return new Response(JSON.stringify(response, null, 4));
 }

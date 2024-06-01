@@ -1,118 +1,95 @@
-/**
- *
- * @param {Object} DB : binding to a D1 database
- * @param {string} table : table name
- * @param {Object} obj : key value pairs for insertion
- * Could add  " RETURNING * " at the end of the query if I want to return new ID/etc
- */
-async function insertOne(DB, table, obj) {
-	let fields = [];
-	let values = [];
-
-	Object.entries(obj).forEach(([key, value]) => {
-		fields.push(key);
-		values.push(value);
-	});
-
-	let query = `INSERT INTO ${table} (${fields.join(',')}) VALUES (${Array(fields.length).fill('?').join(', ')})`;
-	const preparedQuery = DB.prepare(query).bind(...values);
-	const { results } = await runQuery(preparedQuery);
-	return results;
-}
-
-/**
- *
- * @param {Object} DB : binding to a D1 database
- * @param {string} table : table name
- * @param {Object} obj : key value pairs for update
- * @param {string|number} id : the id of the record to be updated
- */
-async function updateOne(DB, table, obj, id) {
-	let fields = [];
-	let values = [];
-
-	Object.entries(obj).forEach(([key, value]) => {
-		fields.push(`${key} = ?`);
-		values.push(value);
-	});
-
-	values.push(id);
-
-	const query = `UPDATE ${table} SET ${fields.join(', ')} WHERE id = ?`;
-
-	const preparedQuery = await DB.prepare(query).bind(...values);
-	const { results } = await runQuery(preparedQuery);
-	return results;
-}
-
-/**
- *
- * @param {Object} DB : binding to a D1 database
- * @param {string} table : table name
- * @param {Object} filters : key value pairs for filtering
- *
- * Only eq, case sensitive for strings,  doesn't support like
- */
-async function getMany(DB, table, filters) {
-	let fields = [];
-	let values = [];
-
-	if (filters) {
-		Object.entries(filters).forEach(([key, value]) => {
-			fields.push(`${key} = ?`);
-			values.push(value);
-		});
+export class DBService {
+	constructor(dbConnection) {
+		this.db = dbConnection;
+		// Ensures #runQuery always has the correct this
+		this.runQuery = this.runQuery.bind(this);
 	}
 
-	let query = `SELECT * FROM ${table} `;
-	if (fields.length) {
-		query += `WHERE ${fields.join(' AND ')}`;
+	async runQuery(query, params = []) {
+		try {
+			let preparedQuery = this.db.prepare(query);
+			preparedQuery = preparedQuery.bind(...params);
+			const { results } = await preparedQuery.run(); //bind(...params).
+			return results;
+		} catch (error) {
+			const niceError = JSON.stringify(error, null, 4);
+			console.error('A DB error occurred:', niceError);
+			throw new Error('Failed to execute query');
+		}
 	}
 
-	let preparedQuery = await DB.prepare(query);
-
-	if (fields.length) {
-		preparedQuery = await preparedQuery.bind(...values);
+	#_placeholders(data) {
+		// private method
+		const keys = Object.keys(data);
+		const values = Object.values(data);
+		const placeholders = keys.map(() => '?').join(', ');
+		const keyValuePairs = keys.map((key) => `${key} = ?`); // Array of 'key = ?' strings
+		return { keys, values, placeholders, keyValuePairs };
 	}
 
-	const { results } = await runQuery(preparedQuery);
-	return results;
-}
-
-/**
- *
- * @param {Object} DB : binding to a D1 database
- * @param {string|number} id : the id of the record to be deleted
- * @returns
- */
-async function deleteById(DB, id) {
-	const query = 'DELETE FROM contacts WHERE id = ?';
-	const preparedQuery = DB.prepare(query).bind(id);
-	const { results } = await runQuery(preparedQuery);
-	return results;
-}
-
-/**
- *
- * @param {Object} preparedQuery : a prepared query created with DB.prepare()
- * @returns
- */
-async function runQuery(preparedQuery) {
-	try {
-		return await preparedQuery.run();
-	} catch (error) {
-		const niceError = JSON.stringify(error, null, 4);
-		console.error('A DB error occurred:', niceError);
-		// return niceError;
+	/**
+	 *
+	 * @param {String} table
+	 * @param {Object} data
+	 * @returns
+	 */
+	async insertOne(table, data) {
+		const { keys, values, placeholders } = this.#_placeholders(data);
+		const query = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders}) RETURNING *`;
+		return await this.runQuery(query, values);
 	}
+
+	/**
+	 *
+	 * @param {String} table
+	 * @param {Object} data : key-value pairs for SET clause
+	 * @param {Object} idObj : {idCol: idVal}
+	 * @returns
+	 */
+	async updateOne(table, data, idObj) {
+		const { values, keyValuePairs } = this.#_placeholders(data);
+		const [idCol, idVal] = Object.entries(idObj)[0];
+		const query = `UPDATE ${table} SET ${keyValuePairs.join(', ')} WHERE ${idCol} = ? RETURNING *`;
+		return await this.runQuery(query, [...values, idVal]);
+	}
+
+	/**
+	 *
+	 * @param {String} table
+	 * @param {Object} conditions : key-value pairs for Where clause
+	 * @param {number} limit
+	 * @returns
+	 */
+	async queryAll(table, conditions = {}, limit = 1000) {
+		const { keys, values, keyValuePairs } = this.#_placeholders(conditions);
+		let query = `SELECT * FROM ${table}`;
+		if (keys.length) {
+			query += ` WHERE ${keyValuePairs.join(' AND ')}`;
+		}
+		query += ` LIMIT ${limit}`;
+		return await this.runQuery(query, values);
+	}
+
+	/**
+	 *
+	 * @param {String} table : table name
+	 * @param {Object} idObj : {idCol: idVal}
+	 * @returns
+	 */
+	async deleteById(table, idObj) {
+		const [idCol, idVal] = Object.entries(idObj)[0];
+		const query = `DELETE FROM ${table} WHERE ${idCol} = ? RETURNING *`;
+		return await this.runQuery(query, [idVal]);
+	}
+
+	// async updateAll(table, data, conditions = {}) {
+	// 	const _data = this.#_placeholders(data);
+	// 	const _conditions = this.#_placeholders(conditions);
+
+	// 	let query = `UPDATE ${table} SET ${_data.keyValuePairs.join(', ')}`;
+	// 	if (_conditions.values.length) {
+	// 		query += ` WHERE ${_conditions.keyValuePairs.join(' AND ')}`;
+	// 	}
+	// 	return await this.runQuery(query, [..._data.values, ..._conditions.values]);
+	// }
 }
-
-const DB = {
-	deleteById,
-	insertOne,
-	getMany,
-	updateOne,
-	runQuery,
-};
-
-export default DB;

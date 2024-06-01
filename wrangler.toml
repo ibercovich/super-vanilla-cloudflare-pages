@@ -16,6 +16,15 @@ SALT_TOKEN = "SALT_STRING"
 port = 8080
 local_protocol = "http"
 
+[env.production]
+vars.ENV = "PROD"
+vars.SALT_TOKEN = "SALT_STRING"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "DB_NAME"
+database_id = "DB_ID"
+
 
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Worker, running it closer to your back-end infrastructure

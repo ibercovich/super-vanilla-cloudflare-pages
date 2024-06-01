@@ -1,36 +1,23 @@
 import UrlPattern from 'url-pattern';
-import { readRequestBody, render404, renderTemplate } from '@/utils';
+import { readRequestBody, renderTemplate, routey, isAuthenticated, html } from '@/utils';
 import * as T from '@/templates/.gen';
-import DB from '@/db';
+import { DBService } from '@/db';
 
 export async function onRequest(context) {
 	const url = new URL(context.request.url);
-	// const urlParams = new URLSearchParams(url.search);
 	const body = await readRequestBody(context.request);
-	const connection = context.env.DB;
-	const method = context.request.method;
-	const routerPath = `${method}${url.pathname}`;
-	let response = null;
-
-	console.log(`${routerPath} on auth router`);
+	const DB = new DBService(context.env.DB);
 
 	// https://www.npmjs.com/package/url-pattern
 	const routes = [
-		{ pattern: new UrlPattern('GET/auth'), handler: authView },
-		{ pattern: new UrlPattern('POST/auth/signup'), handler: signup },
+		{ pattern: new UrlPattern(/^GET\/auth\/(register|login)$/), handler: loginView },
+		{ pattern: new UrlPattern('GET/auth/controls'), handler: controlsView },
+		{ pattern: new UrlPattern('POST/auth/register'), handler: register },
 		{ pattern: new UrlPattern('POST/auth/login'), handler: login },
-		{ pattern: new UrlPattern('GET/auth/logout'), handler: logout },
+		{ pattern: new UrlPattern('GET/auth/logout'), handler: logout, protected: true },
 	];
 
-	for (const route of routes) {
-		const match = route.pattern.match(routerPath);
-		if (match) {
-			response = await route.handler(match);
-			break; // Exit the loop once a match is found and handler is called
-		}
-	}
-
-	return response ? response : render404();
+	return routey(routes, context);
 
 	/**
 	 *
@@ -38,20 +25,34 @@ export async function onRequest(context) {
 	 *
 	 */
 
-	async function authView() {
+	async function loginView(params) {
+		const is_register = params[0] == 'register';
+		const action = is_register ? 'register' : 'login';
 		const partials = {
-			content: T.auth,
+			content: T.login,
 		};
-		return renderTemplate(T.index, {}, partials);
+		return renderTemplate({ action, is_register }, partials, context);
+	}
+
+	async function controlsView(params) {
+		const content = (await isAuthenticated(context))
+			? html`
+					<a class="button is-primary" href="/auth/logout">Log out</a>
+				`
+			: html`
+					<a class="button is-light" href="/auth/login">Log in</a>
+				`;
+		// returns partial html
+		return new Response(content, {
+			headers: { 'Content-Type': 'text/html' },
+		});
 	}
 
 	async function login() {
 		// Attempt to fetch the user by email and verify password
 		const email = body.email;
 		const password = await hashPassword(body.password, context.env.SALT_TOKEN);
-		const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
-		const preparedQuery = connection.prepare(query).bind(email, password);
-		const { results } = await DB.runQuery(preparedQuery);
+		const results = await DB.queryAll('users', { email, password });
 
 		if (results.length === 0) {
 			console.log(`Authentication failed for ${email}`);
@@ -61,25 +62,20 @@ export async function onRequest(context) {
 			});
 		}
 
-		const user = results.pop();
-
-		let expiration = new Date();
-		expiration.setDate(expiration.getDate() + 7); // Set the new session expiration to 7 days in the future
+		const user_id = results.pop().id;
+		const expiration = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // session expiration to 7 days in the future
+		const expires_at = expiration.getTime(); // timestamp in milliseconds
 
 		// Insert a new session for the user
 		// Generate a more complex and secure session token by using base-36 encoding and removing the predictable prefix "1."
-		const sessionToken = await hashPassword((Math.random() + 1).toString(36).substring(2), context.env.SALT_TOKEN);
-		const sessionQuery = 'INSERT INTO users_sessions (user_id, token, expires_at) VALUES (?,?,?) RETURNING *';
-		const sessionPreparedQuery = connection.prepare(sessionQuery).bind(user.id, sessionToken, expiration.getTime());
-		const { results: sessionResults } = await DB.runQuery(sessionPreparedQuery);
-		const { token, expires_at } = sessionResults.pop();
+		const token = await hashPassword((Math.random() + 1).toString(36).substring(2), context.env.SALT_TOKEN);
+		const sessionResults = await DB.insertOne('users_sessions', { user_id, token, expires_at });
 
 		// Set cookie header in the response
-		const _response = { success: true, result: { session: { token, expires_at } } };
 		return new Response(null, {
 			headers: {
 				Location: '/',
-				'Set-Cookie': `session_token=${sessionToken}; Path=/; Expires=${expiration.toUTCString()}; SameSite=Strict; Secure; HttpOnly`, //HttpOnly
+				'Set-Cookie': `session_token=${token}; Path=/; Expires=${expiration.toUTCString()}; SameSite=Strict; Secure; HttpOnly`,
 				'Content-Type': 'text/html', // Usually set to text/html for a redirect, but can be omitted
 			},
 			status: 302,
@@ -95,36 +91,32 @@ export async function onRequest(context) {
 		 */
 		const cookieHeader = context.request.headers.get('Cookie');
 		const cookies = new Map(cookieHeader.split(';').map((cookie) => cookie.trim().split('=')));
-		const sessionToken = cookies.get('session_token');
+		const token = cookies.get('session_token');
 
-		if (sessionToken) {
-			const pastTime = new Date(0).getTime(); // UNIX epoch start
-			const updateQuery = 'UPDATE users_sessions SET expires_at = ? WHERE token = ?';
-			const preparedUpdateQuery = connection.prepare(updateQuery).bind(pastTime, sessionToken);
-			await DB.runQuery(preparedUpdateQuery);
+		if (token) {
+			const expires_at = new Date(0).getTime(); // UNIX epoch start
+			await DB.updateOne('users_sessions', { expires_at }, { token });
 		}
-
-		return new Response(JSON.stringify({ success: true }), {
+		return new Response(null, {
 			headers: {
-				'Content-Type': 'application/json',
-				'Set-Cookie': 'session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; HttpOnly; Secure',
+				Location: '/',
+				'Set-Cookie': `session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure; HttpOnly`,
+				'Content-Type': 'text/html', // Usually set to text/html for a redirect, but can be omitted
 			},
-			status: 200,
+			status: 302,
 		});
 	}
 
-	async function signup() {
+	async function register() {
 		// Validate the request body against the schema
-		const parsed = body; // requestBodySchema.parse(body);
+		const { email, name, password } = body;
 
 		// Hash password and insert data into database
-		const hashedPassword = await hashPassword(parsed.password, context.env.SALT_TOKEN);
-		const query = 'INSERT INTO users (email, name, password) VALUES (?,?,?) RETURNING *';
-		const preparedQuery = connection.prepare(query).bind(parsed.email, parsed.name, hashedPassword);
-		const { results } = await DB.runQuery(preparedQuery);
+		const hashedPassword = await hashPassword(password, context.env.SALT_TOKEN);
+		const results = await DB.insertOne('users', { email, name, password: hashedPassword });
 
 		if (results.length === 0) {
-			console.log(`Registration failed for ${parsed.email}`);
+			console.log(`Registration failed for ${email}`);
 			// Handle errors, including validation and database errors
 			return new Response(JSON.stringify({ success: false, errors: "Couldn't create user" }), {
 				headers: { 'Content-Type': 'application/json' },
@@ -132,13 +124,8 @@ export async function onRequest(context) {
 			});
 		}
 
-		const user = results.pop();
-
 		// Send successful response
-		return new Response(JSON.stringify({ success: true, result: { user } }), {
-			headers: { 'Content-Type': 'application/json' },
-			status: 200,
-		});
+		return Response.redirect(`${url.origin}/auth/login`, 303);
 	}
 }
 
@@ -148,24 +135,4 @@ async function hashPassword(password, salt) {
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
 	const hash = hashArray.map((bytes) => bytes.toString(16).padStart(2, '0')).join('');
 	return hash;
-}
-
-// Function to check if a request is authenticated
-export async function isAuthenticated(context) {
-	const connection = context.env.DB;
-	// const headers = request.headers.getSetCookie();
-	const cookieHeader = context.request.headers.get('Cookie');
-	console.log(`request: ${JSON.stringify(context.request, null, 4)}`);
-	if (!cookieHeader) return false;
-
-	const cookies = new Map(cookieHeader.split(';').map((cookie) => cookie.split('=').map((v) => v.trim())));
-	const sessionToken = cookies.get('session_token');
-	if (!sessionToken) return false;
-
-	// Validate session token in your database
-	const currentTime = new Date().getTime();
-	const query = 'SELECT * FROM users_sessions WHERE token = ? AND expires_at > ?';
-	const preparedQuery = connection.prepare(query).bind(sessionToken, currentTime);
-	const { results } = await DB.runQuery(preparedQuery);
-	return results.length > 0;
 }

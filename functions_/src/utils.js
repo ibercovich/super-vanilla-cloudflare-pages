@@ -2,6 +2,7 @@ import Mustache from 'mustache';
 // https://ejs.co/#docs // alternative in case mustache becomes limiting
 import * as T from '@/templates/.gen';
 import _404 from '../../pages/404.html';
+import { DBService } from '@/db';
 
 // Join the strings and values to return the final HTML string
 // This is a simple version that lacks features of larger libraries
@@ -25,10 +26,14 @@ export function render404() {
 	});
 }
 
-export function renderTemplate(template, data, partials) {
+export async function renderTemplate(data, partials = {}, context) {
 	// https://github.com/janl/mustache.jss
-	const html = Mustache.render(template, data, partials);
-	return new Response(html, {
+	// data = data || {};
+	partials = partials || {};
+	partials.header = T.header;
+	partials.footer = T.footer;
+	const content = Mustache.render(T.index, data, partials);
+	return new Response(content, {
 		headers: { 'Content-Type': 'text/html' },
 	});
 }
@@ -60,4 +65,53 @@ export async function readRequestBody(request) {
 			return 'a file';
 		}
 	}
+}
+
+export async function routey(routes, context) {
+	const url = new URL(context.request.url);
+	const method = context.request.method;
+	const routerPath = `${method}${url.pathname}`;
+	const authenticated = await isAuthenticated(context);
+	console.log(`Routing to: ${routerPath}`);
+	let response = null;
+	for (const route of routes) {
+		const match = route.pattern.match(routerPath);
+		if (match) {
+			// Check if the route requires authentication
+			if (route.protected && !authenticated) {
+				return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+					headers: { 'Content-Type': 'application/json' },
+					status: 401,
+				});
+			}
+			response = await route.handler(match);
+			break; // Exit the loop once a match is found and handler is called
+		}
+	}
+	return response ? response : render404();
+}
+
+let _authenticated = null; // closure for caching
+// Function to check if a request is authenticated
+export async function isAuthenticated(context) {
+	//return from cache
+	if (_authenticated === true || _authenticated === false) {
+		return _authenticated;
+	}
+
+	const DB = new DBService(context.env.DB);
+	// const headers = request.headers.getSetCookie();
+	const cookieHeader = context.request.headers.get('Cookie');
+	if (!cookieHeader) return false;
+
+	const cookies = new Map(cookieHeader.split(';').map((cookie) => cookie.split('=').map((v) => v.trim())));
+	const token = cookies.get('session_token');
+	if (!token) return false;
+
+	// Validate session token in your database
+	const currentTime = new Date().getTime();
+	const query = 'SELECT * FROM users_sessions WHERE token = ? AND expires_at > ?';
+	const results = (await DB.runQuery(query, [token, currentTime])) || [];
+
+	return results.length > 0;
 }

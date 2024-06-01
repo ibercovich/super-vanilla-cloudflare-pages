@@ -13,12 +13,12 @@
 			if (window.location.hostname === 'localhost') {
 				const script = document.createElement('script');
 				script.src = '/dev-refresh.js';
-				document.head.appendChild(script);
+				// document.head.appendChild(script);
 			}
 		</script>
 		<title>{{ title }}</title>
 	</head>
 	<body hx-boost="true">
-		{{> content}}
+		{{> header}} {{> content}} {{> footer}}
 	</body>
 </html>

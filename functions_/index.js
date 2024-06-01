@@ -12,5 +12,5 @@ export async function onRequest(context) {
 			</div>
 		</main>
 	`;
-	return await renderTemplate(T.index, { title: 'Super Vanilla' }, { content });
+	return renderTemplate({ title: 'Super Vanilla' }, { content }, context);
 }

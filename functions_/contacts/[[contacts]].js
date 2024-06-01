@@ -1,48 +1,27 @@
 import UrlPattern from 'url-pattern';
 import * as T from '@/templates/.gen';
-import { renderTemplate, readRequestBody, render404 } from '@/utils';
-import DB from '@/db';
-import { isAuthenticated } from '../auth/[[auth]]';
+import { renderTemplate, readRequestBody, routey } from '@/utils';
+import { DBService } from '@/db';
 
 export async function onRequest(context) {
 	const url = new URL(context.request.url);
 	const urlParams = new URLSearchParams(url.search);
 	const body = await readRequestBody(context.request);
-	const connection = context.env.DB;
-	// const params = context.params.contacts;
-	const method = context.request.method;
-	const routerPath = `${method}${url.pathname}`;
-	let response = null;
-
-	console.log(`${routerPath} on main router`);
+	const DB = new DBService(context.env.DB);
 
 	// https://www.npmjs.com/package/url-pattern
 	const routes = [
+		//more specific comes first
 		{ pattern: new UrlPattern('GET/contacts'), handler: allContacts },
-		{ pattern: new UrlPattern('GET/contacts/new'), handler: newContact }, //more specific on top
+		{ pattern: new UrlPattern('GET/contacts/new'), handler: newContact, protected: true },
 		{ pattern: new UrlPattern('GET/contacts/:id'), handler: viewContact },
 		{ pattern: new UrlPattern('GET/contacts/:id/edit'), handler: editContact, protected: true },
-		{ pattern: new UrlPattern('POST/contacts/new'), handler: newContactPost }, //more specific on top
+		{ pattern: new UrlPattern('POST/contacts/new'), handler: newContactPost, protected: true },
 		{ pattern: new UrlPattern('POST/contacts/:id/edit'), handler: editContactPost, protected: true },
-		{ pattern: new UrlPattern('DELETE/contacts/:id'), handler: contactDelete },
+		{ pattern: new UrlPattern('DELETE/contacts/:id'), handler: contactDelete, protected: true },
 	];
 
-	for (const route of routes) {
-		const match = route.pattern.match(routerPath);
-		if (match) {
-			// Check if the route requires authentication
-			if (route.protected && !(await isAuthenticated(context))) {
-				return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
-					headers: { 'Content-Type': 'application/json' },
-					status: 401,
-				});
-			}
-			response = await route.handler(match, context);
-			break; // Exit the loop once a match is found and handler is called
-		}
-	}
-
-	return response ? response : render404();
+	return routey(routes, context);
 
 	/**
 	 *
@@ -52,62 +31,60 @@ export async function onRequest(context) {
 
 	async function allContacts(params) {
 		const q = urlParams.get('q');
-		const filters = q ? { first_name: q } : null;
-		const contacts = await DB.getMany(connection, 'contacts', filters);
+		const filters = q ? { first_name: q } : {};
+		const contacts = await DB.queryAll('contacts', filters);
 		const partials = {
 			content: T.contacts,
 			controls: T.controls,
 		};
-		// return await renderTemplate(T.index, { q: q, contacts }, T.contacts);
-		return renderTemplate(T.index, { q: q, contacts }, partials);
+		return renderTemplate({ q: q, contacts }, partials, context);
 	}
 
 	async function newContact(params) {
 		const partials = {
 			content: T.new_contact,
 		};
-		return renderTemplate(T.index, { action: 'new' }, partials);
+		return renderTemplate({ action: 'new' }, partials, context);
 	}
 
 	async function newContactPost(params) {
 		// Still need to figure out form validation
-		console.log(body);
-		await DB.insertOne(connection, 'contacts', body);
+		await DB.insertOne('contacts', body);
 		return Response.redirect(`${url.origin}/contacts`, 303);
 	}
 
 	async function viewContact(params) {
 		const id = params.id;
-		const contact = (await DB.getMany(connection, 'contacts', { id })).pop();
+		const contact = (await DB.queryAll('contacts', { id })).pop();
 		if (contact) {
 			const partials = {
 				content: T.view_contact,
 				controls: T.controls,
 			};
-			return renderTemplate(T.index, contact, partials);
+			return renderTemplate(contact, partials, context);
 		}
 	}
 
 	async function editContact(params) {
 		const id = params.id;
-		const contact = (await DB.getMany(connection, 'contacts', { id })).pop();
+		const contact = (await DB.queryAll('contacts', { id })).pop();
 		if (contact) {
 			const partials = {
 				content: T.new_contact,
 			};
-			return renderTemplate(T.index, { contact, action: `${id}/edit` }, partials);
+			return renderTemplate({ contact, action: `${id}/edit` }, partials, context);
 		}
 	}
 
 	async function editContactPost(params) {
 		const id = params.id;
-		await DB.updateOne(connection, 'contacts', body, id);
+		await DB.updateOne('contacts', body, { id });
 		return Response.redirect(`${url.origin}/contacts`, 303);
 	}
 
 	async function contactDelete(params) {
 		const id = params.id;
-		await DB.deleteById(connection, id);
+		await DB.deleteById('contacts', { id });
 		return Response.redirect(`${url.origin}/contacts`, 303);
 	}
 }

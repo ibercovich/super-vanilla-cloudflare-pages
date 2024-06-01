@@ -3,6 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import esbuild from 'esbuild';
 
+const args = process.argv.slice(2);
+const isProd = args.includes('--production');
+
 // Configuration
 // Ideally this conf is an .env available to all functions
 // For example, dev-refresh refers directly to "buildts.gen.json"
@@ -52,8 +55,8 @@ const main = async () => {
 			entryPoints,
 			outdir: CONF.outdir,
 			bundle: true,
-			minify: true,
-			sourcemap: true, //should turn them off in prod
+			minify: isProd ? false : true,
+			sourcemap: isProd ? false : true, //should turn them off in prod
 			target: 'es2015',
 			format: 'esm',
 			splitting: true,
