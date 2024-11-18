@@ -105,7 +105,16 @@ Build output directory `pages`.
 To create and initialize a database with Cloudflare Wrangler:
 
 ```sh
-wrangler d1 create database_name
-wrangler d1 execute database_name --local --file=schema.sql
-wrangler d1 execute database_name --remote --file=schema.sql
+wrangler d1 create DB_NAME
+wrangler d1 execute DB_NAME --local --file=schema.sql
+wrangler d1 execute DB_NAME --remote --file=schema.sql
+```
+
+### Packages currently experimenting with
+
+```
+"validator": "^13.12.0",
+"zod": "^3.23.8",
+"ajv": "^8.13.0",
+"knex": "^3.1.0",
 ```

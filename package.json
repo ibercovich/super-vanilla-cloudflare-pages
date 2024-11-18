@@ -1,6 +1,8 @@
 {
 	"name": "vanilla",
 	"version": "0.0.0",
+	"author": "Ivan Bercovich",
+	"description": "## a simple cms for cloudflare pages",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -20,17 +22,13 @@
 		"exec": "node build.js && wrangler pages dev"
 	},
 	"devDependencies": {
-		"esbuild": "^0.21.3",
-		"nodemon": "^3.1.0",
-		"prettier": "^3.2.5",
-		"wrangler": "^3.57.0"
+		"esbuild": "^0.24",
+		"nodemon": "^3.1.7",
+		"prettier": "^3.3.3",
+		"wrangler": "^3.87.0"
 	},
 	"dependencies": {
-		"ajv": "^8.13.0",
-		"knex": "^3.1.0",
 		"mustache": "^4.2.0",
-		"url-pattern": "^1.0.3",
-		"validator": "^13.12.0",
-		"zod": "^3.23.8"
+		"url-pattern": "^1.0.3"
 	}
 }
