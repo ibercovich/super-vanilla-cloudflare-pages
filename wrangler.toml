@@ -6,8 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "DB_NAME"
-database_id = "DB_ID"
+database_name = "super-vanilla"
+database_id = "f10963b9-5206-4267-80d4-a77072af1d8a"
 
 [vars]
 SALT_TOKEN = "SALT_STRING"
