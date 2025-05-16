@@ -105,9 +105,10 @@ Build output directory `pages`.
 To create and initialize a database with Cloudflare Wrangler:
 
 ```sh
-npx wrangler d1 create DB_NAME
-npx wrangler d1 execute DB_NAME --local --file=schema.sql
-npx wrangler d1 execute DB_NAME --remote --file=schema.sql
+# replace super-vanilla with your desired database name
+npx wrangler d1 create super-vanilla
+npx wrangler d1 execute super-vanilla --local --file=schema.sql
+npx wrangler d1 execute super-vanilla --remote --file=schema.sql
 ```
 
 ### Configure Cloudflare

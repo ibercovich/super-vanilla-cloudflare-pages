@@ -10,7 +10,10 @@ database_name = "super-vanilla"
 database_id = "f10963b9-5206-4267-80d4-a77072af1d8a"
 
 [vars]
-SALT_TOKEN = "SALT_STRING"
+# SALT_TOKEN = "SALT_TOKEN_STRING"
+# In development, SALT_TOKEN should be set via environment variable
+# wrangler pages dev --binding SALT_TOKEN=SALT_TOKEN_STRING"
+# or using wrangler secret
 
 [dev]
 port = 8080
