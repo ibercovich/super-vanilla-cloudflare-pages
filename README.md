@@ -110,6 +110,13 @@ npx wrangler d1 execute DB_NAME --local --file=schema.sql
 npx wrangler d1 execute DB_NAME --remote --file=schema.sql
 ```
 
+### Configure Cloudflare
+
+- create D1 database & add as a binding under DB_NAME
+- create secret env variable for SALT_TOKEN
+- set build command as `npm run deploy`
+-
+
 ### Packages currently experimenting with
 
 ```

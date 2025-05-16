@@ -16,14 +16,24 @@ SALT_TOKEN = "SALT_STRING"
 port = 8080
 local_protocol = "http"
 
-[env.production]
-vars.ENV = "PROD"
-vars.SALT_TOKEN = "SALT_STRING"
+###########################################
+# THE FOLLOWING SHOULD BE SET IN PRODUCTION
+# AS VARIABLE, BINDINGS, SECRETS, ETC.
+###########################################
 
-[[env.production.d1_databases]]
-binding = "DB"
-database_name = "DB_NAME"
-database_id = "DB_ID"
+# [env.production]
+# vars.ENV = "PROD"
+# vars.SALT_TOKEN = "SALT_STRING"
+
+# [[env.production.d1_databases]]
+# binding = "DB"
+# database_name = "DB_NAME"
+# database_id = "DB_ID"
+
+###########################################
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# THE FOLLOWING SHOULD BE SET IN PRODUCTION
+###########################################
 
 
 # Automatically place your workloads in an optimal location to minimize latency.
