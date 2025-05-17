@@ -1,51 +1,109 @@
 <main class="section">
 	<div class="container" id="content">
-		<form action="/contacts/{{{ action }}}" method="post" class="box" id="myForm">
-			<fieldset class="field">
-				<legend class="label">Contact Values</legend>
-
-				<div class="field">
-					<label class="label" for="email">Email</label>
-					<div class="control">
-						<input class="input" name="email" id="email" type="email" placeholder="Email" value="{{ contact.email }}" required />
-					</div>
-					<p class="help is-danger">{{ contact.errors.email }}</p>
-				</div>
-
-				<div class="field">
-					<label class="label" for="first_name">First Name</label>
-					<div class="control">
-						<input class="input" name="first_name" id="first_name" type="text" placeholder="First Name" value="{{ contact.first_name }}" />
-					</div>
-					<p class="help is-danger">{{ contact.errors.first }}</p>
-				</div>
-
-				<div class="field">
-					<label class="label" for="last_name">Last Name</label>
-					<div class="control">
-						<input class="input" name="last_name" id="last_name" type="text" placeholder="Last Name" value="{{ contact.last_name }}" />
-					</div>
-					<p class="help is-danger">{{ contact.errors.last }}</p>
-				</div>
-
-				<div class="field">
-					<label class="label" for="phone">Phone</label>
-					<div class="control">
-						<input class="input" type="tel" id="phone" name="phone" value="{{ contact.phone }}" required />
-					</div>
-					<p class="help is-danger">{{ contact.errors.phone }}</p>
-				</div>
-
-				<div class="field">
-					<div class="control">
-						<button class="button is-primary">Save</button>
+		<div class="box">
+			<div class="level mb-4">
+				<div class="level-left">
+					<div class="level-item">
+						<h1 class="title is-4">{{#contact.id}}Edit Contact{{/contact.id}} {{^contact.id}}New Contact{{/contact.id}}</h1>
 					</div>
 				</div>
-			</fieldset>
-		</form>
+				<div class="level-right">
+					<div class="level-item">
+						<a class="button is-small is-warning" href="/contacts">
+							<span class="icon">
+								<i class="fas fa-arrow-left"></i>
+							</span>
+							<span>Back to Contacts</span>
+						</a>
+					</div>
+				</div>
+			</div>
 
-		<p>
-			<a class="button is-light" href="/contacts">Back</a>
-		</p>
+			<form action="/contacts/{{{ action }}}" method="post" id="myForm">
+				<fieldset>
+					<div class="field">
+						<label class="label" for="email">Email</label>
+						<div class="control has-icons-left">
+							<input
+								class="input"
+								name="email"
+								id="email"
+								type="email"
+								placeholder="contact@example.com"
+								value="{{ contact.email }}"
+								required
+							/>
+							<span class="icon is-small is-left">
+								<i class="fas fa-envelope"></i>
+							</span>
+						</div>
+						<p class="help is-danger">{{ contact.errors.email }}</p>
+					</div>
+
+					<div class="columns">
+						<div class="column">
+							<div class="field">
+								<label class="label" for="first_name">First Name</label>
+								<div class="control has-icons-left">
+									<input
+										class="input"
+										name="first_name"
+										id="first_name"
+										type="text"
+										placeholder="First Name"
+										value="{{ contact.first_name }}"
+									/>
+									<span class="icon is-small is-left">
+										<i class="fas fa-user"></i>
+									</span>
+								</div>
+								<p class="help is-danger">{{ contact.errors.first }}</p>
+							</div>
+						</div>
+						<div class="column">
+							<div class="field">
+								<label class="label" for="last_name">Last Name</label>
+								<div class="control has-icons-left">
+									<input
+										class="input"
+										name="last_name"
+										id="last_name"
+										type="text"
+										placeholder="Last Name"
+										value="{{ contact.last_name }}"
+									/>
+									<span class="icon is-small is-left">
+										<i class="fas fa-user"></i>
+									</span>
+								</div>
+								<p class="help is-danger">{{ contact.errors.last }}</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label" for="phone">Phone</label>
+						<div class="control has-icons-left">
+							<input class="input" type="tel" id="phone" name="phone" placeholder="(123) 456-7890" value="{{ contact.phone }}" required />
+							<span class="icon is-small is-left">
+								<i class="fas fa-phone"></i>
+							</span>
+						</div>
+						<p class="help is-danger">{{ contact.errors.phone }}</p>
+					</div>
+
+					<div class="field mt-5">
+						<div class="control">
+							<button class="button is-primary">
+								<span class="icon">
+									<i class="fas fa-save"></i>
+								</span>
+								<span>Save Contact</span>
+							</button>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+		</div>
 	</div>
 </main>

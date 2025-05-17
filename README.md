@@ -1,5 +1,7 @@
 # Super Vanilla Cloudflare Pages
 
+[Live Demo](https://super-vanilla-cloudflare-pages.pages.dev/)
+
 ## Still missing
 
 - Form and data validation

@@ -1,15 +1,73 @@
 <main class="section">
 	<div class="container" id="content">
-		<h1>{{ first_name }} {{ last_name }}</h1>
+		<div class="box">
+			<div class="level mb-4">
+				<div class="level-left">
+					<div class="level-item">
+						<h1 class="title is-4">Contact Details</h1>
+					</div>
+				</div>
+				<div class="level-right">
+					<div class="level-item">
+						<a class="button is-small is-warning" href="/contacts">
+							<span class="icon">
+								<i class="fas fa-arrow-left"></i>
+							</span>
+							<span>Back to Contacts</span>
+						</a>
+					</div>
+				</div>
+			</div>
 
-		<div>
-			<div>Phone: {{ phone }}</div>
-			<div>Email: {{ email }}</div>
+			<div class="card">
+				<div class="card-content">
+					<div class="media">
+						<div class="media-left">
+							<figure class="image is-48x48">
+								<span class="icon is-large">
+									<i class="fas fa-user-circle fa-3x"></i>
+								</span>
+							</figure>
+						</div>
+						<div class="media-content">
+							<p class="title is-4">{{ first_name }} {{ last_name }}</p>
+							<p class="subtitle is-6">Contact</p>
+						</div>
+					</div>
+
+					<div class="content mt-4">
+						<div class="field">
+							<label class="label">Phone</label>
+							<div class="control">
+								<div class="is-flex is-align-items-center">
+									<span class="icon mr-2">
+										<i class="fas fa-phone"></i>
+									</span>
+									<a href="tel:{{ phone }}">{{ phone }}</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="field">
+							<label class="label">Email</label>
+							<div class="control">
+								<div class="is-flex is-align-items-center">
+									<span class="icon mr-2">
+										<i class="fas fa-envelope"></i>
+									</span>
+									<a href="mailto:{{ email }}">{{ email }}</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card-footer">
+					<div class="card-footer-item">
+						<div class="buttons">{{> controls}}</div>
+					</div>
+				</div>
+			</div>
 		</div>
-
-		<p>
-			{{> controls}}
-			<a class="button is-small is-warning" href="/contacts">Back</a>
-		</p>
 	</div>
 </main>

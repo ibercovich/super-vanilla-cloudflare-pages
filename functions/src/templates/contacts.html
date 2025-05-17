@@ -1,41 +1,70 @@
 <main class="section">
 	<div class="container" id="content">
-		<form action="/contacts" method="get" class="tool-bar">
-			<div class="field has-addons">
-				<div class="control">
-					<input class="input" id="search" type="search" name="q" value="{{ q }}" />
-				</div>
-				<div class="control">
-					<button class="button is-link" type="submit">Search</button>
+		<div class="level mb-5">
+			<div class="level-left">
+				<div class="level-item">
+					<h1 class="title is-4">Contacts Directory</h1>
 				</div>
 			</div>
-		</form>
+		</div>
 
-		<table class="table is-fullwidth is-striped">
-			<thead>
-				<tr>
-					<th>Firsty</th>
-					<th>Lasty</th>
-					<th>Phoney</th>
-					<th>Emaily</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#contacts}}
-				<tr>
-					<td>{{ first_name }}</td>
-					<td>{{ last_name }}</td>
-					<td>{{ phone }}</td>
-					<td>{{ email }}</td>
-					<td>{{> controls}}</td>
-				</tr>
-				{{/contacts}}
-			</tbody>
-		</table>
+		<div class="box">
+			<div class="columns is-vcentered mb-4">
+				<div class="column">
+					<form action="/contacts" method="get">
+						<div class="field has-addons">
+							<div class="control is-expanded">
+								<input class="input" id="search" type="search" name="q" value="{{ q }}" placeholder="Search contacts..." />
+							</div>
+							<div class="control">
+								<button class="button is-link" type="submit">
+									<span class="icon">
+										<i class="fas fa-search"></i>
+									</span>
+									<span>Search</span>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="column is-narrow">
+					<a class="button is-success" href="/contacts/new">
+						<span class="icon">
+							<i class="fas fa-plus"></i>
+						</span>
+						<span>Add Contact</span>
+					</a>
+				</div>
+			</div>
 
-		<p>
-			<a class="button is-success" href="/contacts/new">Add Contact</a>
-		</p>
+			<div class="table-container">
+				<table class="table is-fullwidth is-hoverable is-striped">
+					<thead>
+						<tr>
+							<th>First Name</th>
+							<th>Last Name</th>
+							<th>Phone</th>
+							<th>Email</th>
+							<th class="has-text-centered">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{{#contacts}}
+						<tr>
+							<td>{{ first_name }}</td>
+							<td>{{ last_name }}</td>
+							<td>{{ phone }}</td>
+							<td>
+								<a href="mailto:{{ email }}">{{ email }}</a>
+							</td>
+							<td class="has-text-centered">
+								<div class="buttons is-centered">{{> controls}}</div>
+							</td>
+						</tr>
+						{{/contacts}}
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 </main>

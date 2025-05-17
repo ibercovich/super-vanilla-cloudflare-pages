@@ -6,8 +6,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "NO_BUILD=1 node build.js  --production",
-		"build:copy": "NO_BUILD=1 node build.js",
+		"build": "node build.js  --production",
+		"build:copy": "node build.js",
 		"deploy": "node build.js --production",
 		"reloader": "browser-sync start --config bs-config.cjs",
 		"dev": "SALT_TOKEN=SALT_TOKEN_STRING NO_BUILD=true nodemon"

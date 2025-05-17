@@ -1,20 +1,52 @@
-<nav class="navbar" role="navigation" aria-label="main navigation">
-	<div class="navbar-brand">
-		<a class="navbar-item" href="/">
-			<img src="/super-vanilla.png" width="28" height="28" alt="Super Vanilla" />
-		</a>
-	</div>
+<nav class="navbar has-shadow is-fixed-top" role="navigation" aria-label="main navigation">
+	<div class="container">
+		<div class="navbar-brand">
+			<a class="navbar-item" href="/">
+				<img src="/super-vanilla.png" width="28" height="28" alt="Super Vanilla" />
+				<span class="has-text-weight-bold ml-2">Super Vanilla</span>
+			</a>
 
-	<div class="navbar-menu">
-		<div class="navbar-start">
-			<a class="navbar-item button is-light" href="/contacts">All Contacts</a>
-			<a class="navbar-item button is-light" href="/contacts/new">New Contact</a>
+			<a
+				role="button"
+				class="navbar-burger"
+				aria-label="menu"
+				aria-expanded="false"
+				hx-on:click="this.classList.toggle('is-active');
+			                document.getElementById('navbarMenu').classList.toggle('is-active');"
+			>
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+			</a>
 		</div>
 
-		<div class="navbar-end">
-			<div class="navbar-item">
-				<div class="buttons" hx-get="/auth/controls" hx-trigger="load"></div>
+		<div id="navbarMenu" class="navbar-menu">
+			<div class="navbar-start">
+				<a class="navbar-item" href="/contacts">
+					<span class="icon-text">
+						<span class="icon">
+							<i class="fas fa-address-book"></i>
+						</span>
+						<span>All Contacts</span>
+					</span>
+				</a>
+				<a class="navbar-item" href="/contacts/new">
+					<span class="icon-text">
+						<span class="icon">
+							<i class="fas fa-plus"></i>
+						</span>
+						<span>New Contact</span>
+					</span>
+				</a>
+			</div>
+
+			<div class="navbar-end">
+				<div class="navbar-item">
+					<div class="buttons" hx-get="/auth/controls" hx-trigger="load"></div>
+				</div>
 			</div>
 		</div>
 	</div>
 </nav>
+
+<div class="mt-6 pt-5"><!-- Spacer to prevent content from hiding behind fixed navbar --></div>
