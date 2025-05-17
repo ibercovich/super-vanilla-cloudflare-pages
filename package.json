@@ -7,6 +7,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "node build.js",
+		"build:copy": "NO_BUILD=1 node build.js",
 		"deploy": "node build.js --production",
 		"reloader": "browser-sync start --config bs-config.cjs",
 		"dev": "SALT_TOKEN=SALT_TOKEN_STRING nodemon"
