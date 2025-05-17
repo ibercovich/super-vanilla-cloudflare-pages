@@ -140,3 +140,4 @@ const main = async () => {
 
 // Execute the main build process
 main();
+// Adding NO_BUILD feature to enable simple file copy option
