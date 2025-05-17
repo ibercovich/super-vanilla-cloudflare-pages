@@ -11,7 +11,7 @@ The application is a lightweight CMS (Content Management System) that uses Cloud
 - **Frontend**: Vanilla HTML/CSS/HTMX/JS with Mustache templates
 - **Backend**: Cloudflare Functions (powered by Cloudflare Workers)
 - **Database**: Cloudflare D1 (distributed SQLite database)
-- **Build System**: Custom ESBuild configuration
+- **Build System**: Custom configuration with optional ESBuild bundling
 - **Authentication**: Custom session-based auth with secure cookie management
 - **Styling**: Bulma CSS framework (referenced in templates)
 
@@ -19,14 +19,13 @@ The application is a lightweight CMS (Content Management System) that uses Cloud
 
 The repository is organized into several key directories:
 
-- **`functions_/`**: Source code for serverless functions
-  - **`functions_/src/`**: Shared utilities and core functionality
-  - **`functions_/src/templates/`**: Mustache HTML templates
-  - **`functions_/api/`**: API endpoints
-  - **`functions_/auth/`**: Authentication handlers
-  - **`functions_/contacts/`**: Contact management functionality
-- **`functions/`**: Compiled output of the serverless functions (generated at build time)
-- **`pages/`**: Static assets and generated files for the frontend
+- **`functions/`**: Source code for serverless functions, used for development
+  - **`functions/src/`**: Shared utilities and core functionality
+  - **`functions/src/templates/`**: Mustache HTML templates
+  - **`functions/api/`**: API endpoints
+  - **`functions/auth/`**: Authentication handlers
+  - **`functions/contacts/`**: Contact management functionality
+- **`pages/`**: Static assets and files for the frontend
 - Other configuration files:
   - **`wrangler.toml`**: Cloudflare configuration
   - **`schema.sql`**: Database schema definitions
@@ -35,15 +34,27 @@ The repository is organized into several key directories:
 
 ## Build Process
 
-The build process is defined in `build.js` and includes:
+The build process is defined in `build.js` and supports two deployment modes:
 
-1. Cleaning the output directory (`functions/`)
-2. Generating timestamp file for client-side cache busting
-3. Generating a module that imports all templates for easy access
-4. Bundling JavaScript with ESBuild with appropriate optimizations
-5. Setting up aliases for module resolution
+### Simple Build (NO_BUILD mode)
 
-The build can be run in development or production mode, with production applying more optimizations.
+1. Generating timestamp file for client-side cache busting
+2. Generating a module that imports all templates with relative paths
+
+## Module Loading
+
+The application supports two approaches for loading modules:
+
+### Without Bundling (Direct Copy)
+
+When using the direct copy approach, all imports use explicit relative paths:
+
+```javascript
+import { renderTemplate } from '../src/utils.js';
+import * as T from '../src/templates/.gen.js';
+```
+
+The template generation process (`bulkImports`) adjusts imported paths based on the approach being used.
 
 ## Application Architecture
 
@@ -89,7 +100,7 @@ The application implements a custom session-based authentication system:
 
 The application uses Mustache for HTML templating:
 
-1. Templates are stored in the `functions_/src/templates/` directory as HTML files
+1. Templates are stored in the `functions/src/templates/` directory as HTML files
 2. The build process generates a module that imports all templates
 3. The `renderTemplate` function in `utils.js` combines templates with data
 4. Partials (like header and footer) are reused across pages
@@ -106,11 +117,19 @@ The application uses URL pattern matching for routing:
 
 The development workflow is defined in `package.json` scripts:
 
-1. **`build`**: Compiles the application for development
+1. **`build`**: Compiles the application
 2. **`deploy`**: Compiles and deploys the application to production
 3. **`dev`**: Runs a local development server with hot reloading
 
 The development server uses Nodemon to watch for changes and automatically rebuild.
+
+## Secrets and Environment Variables
+
+Environment variables like `SALT_TOKEN` can be set in different ways:
+
+1. In development: Via the `--binding` parameter when running wrangler
+2. In package.json scripts: By setting variables like `SALT_TOKEN=SALT_TOKEN_STRING` in the script
+3. In production: Using Cloudflare Dashboard or wrangler secrets
 
 ## Deployment
 
@@ -124,6 +143,7 @@ The application implements several security features:
 2. Session tokens are stored securely in HTTP-only cookies
 3. Protected routes verify authentication before granting access
 4. Form inputs are validated before processing
+5. Sensitive configuration like `SALT_TOKEN` is managed through environment variables/secrets
 
 ## Conclusion
 

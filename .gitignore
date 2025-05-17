@@ -1,6 +1,6 @@
 # Super-Vanilla ignores
-functions
-functions/**/*
+# functions
+# functions/**/*
 *.gen.*
 
 # Logs

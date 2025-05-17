@@ -1,46 +1,26 @@
 // build.js
 import fs from 'node:fs';
 import path from 'node:path';
-import esbuild from 'esbuild';
+// import esbuild from 'esbuild';
 
 // Parse command line arguments to determine if we're in production mode
-const args = process.argv.slice(2);
-const isProd = args.includes('--production');
+// const args = process.argv.slice(2);
+// const isProd = args.includes('--production');
 
 // Configuration
 // Ideally this conf is an .env available to all functions
 // For example, dev-refresh refers directly to "buildts.gen.json"
 const CONF = {
-	entry: 'functions_',
-	src: 'functions_/src',
+	entry: 'functions',
+	src: 'functions/src',
 	templates: 'templates',
-	routes: 'routes',
+	// routes: 'routes',
 	buildts: 'buildts.gen.json',
-	outdir: 'functions',
+	// outdir: 'functions',
 	static: 'pages',
 };
 
 // Utility Functions
-
-// Simple copy operation: copy all files from functions_ to functions
-const copyFiles = (srcDir, destDir) => {
-	if (!fs.existsSync(destDir)) {
-		fs.mkdirSync(destDir, { recursive: true });
-	}
-
-	const entries = fs.readdirSync(srcDir, { withFileTypes: true });
-
-	for (const entry of entries) {
-		const srcPath = path.join(srcDir, entry.name);
-		const destPath = path.join(destDir, entry.name);
-
-		if (entry.isDirectory()) {
-			copyFiles(srcPath, destPath);
-		} else {
-			fs.copyFileSync(srcPath, destPath);
-		}
-	}
-};
 
 /**
  * Recursively fetches all files from a directory and its subdirectories
@@ -74,7 +54,10 @@ const bulkImports = (type, ext) => {
 		name: path.basename(_path, ext),
 		relativePath: path.relative(CONF.src, _path).replace(/\\/g, '/'),
 	}));
-	const imports = files.map(({ name, relativePath }) => `import ${name} from '@/${relativePath}';`).join('\n');
+
+	// For templates/.gen.js in src/templates directory, it needs to reference files in the same src directory
+	// So we go up one level from templates with "../"
+	const imports = files.map(({ name, relativePath }) => `import ${name} from '../${relativePath}';`).join('\n');
 	const exports = `export { ${files.map((f) => f.name).join(', ')} };`;
 	fs.writeFileSync(dest, `${imports}\n\n${exports}\n`, 'utf8');
 };
@@ -87,55 +70,12 @@ const bulkImports = (type, ext) => {
  * 4. Either bundles JavaScript files using esbuild or copies files directly if NO_BUILD env var is set
  */
 const main = async () => {
-	// Clean output directory
-	fs.rmSync(CONF.outdir, { recursive: true, force: true });
-
 	// Create a timestamp file for cache busting on the client
 	fs.writeFileSync(path.join(CONF.static, CONF.buildts), `{"timestamp":${Date.now()}}`);
 
 	// Generate template imports
 	bulkImports(CONF.templates, '.html');
 	// bulkImports(CONF.routes, '.js');
-
-	// Check if NO_BUILD environment variable is set
-	if (process.env.NO_BUILD) {
-		console.log('NO_BUILD flag detected. Skipping bundling and copying files directly...');
-
-		// Create the output directory
-		fs.mkdirSync(CONF.outdir, { recursive: true });
-
-		// Copy everything from functions_ to functions
-		copyFiles(CONF.entry, CONF.outdir);
-
-		console.log(`Files copied from ${CONF.entry} to ${CONF.outdir}`);
-	} else {
-		// Find all JavaScript entry points
-		const entryPoints = getAll(CONF.entry, '.js', CONF.src);
-
-		try {
-			// Bundle with esbuild
-			await esbuild.build({
-				entryPoints,
-				outdir: CONF.outdir,
-				bundle: true,
-				minify: isProd ? false : true,
-				sourcemap: isProd ? false : true, //should turn them off in prod
-				target: 'es2015',
-				format: 'esm',
-				splitting: true,
-				keepNames: false,
-				alias: {
-					'@': `./${CONF.src}`,
-				},
-				loader: {
-					'.html': 'text', //include html
-				},
-			});
-		} catch (error) {
-			console.error('Build failed:', error);
-			process.exit(1);
-		}
-	}
 };
 
 // Execute the main build process

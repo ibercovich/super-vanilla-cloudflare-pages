@@ -1,7 +1,7 @@
 import UrlPattern from 'url-pattern';
-import { readRequestBody, renderTemplate, routey, isAuthenticated, html } from '@/utils';
-import * as T from '@/templates/.gen';
-import { DBService } from '@/db';
+import { readRequestBody, renderTemplate, routey, isAuthenticated, html } from '../src/utils.js';
+import * as T from '../src/templates/.gen.js';
+import { DBService } from '../src/db.js';
 
 export async function onRequest(context) {
 	const url = new URL(context.request.url);

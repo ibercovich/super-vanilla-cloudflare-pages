@@ -14,7 +14,7 @@
 	},
 	"nodemonConfig": {
 		"watch": [
-			"functions_"
+			"functions"
 		],
 		"ext": "js , css, html, json",
 		"ignore": [

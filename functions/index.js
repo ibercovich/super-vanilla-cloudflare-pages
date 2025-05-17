@@ -1,6 +1,6 @@
-import { renderTemplate, html } from '@/utils';
-import * as T from '@/templates/.gen';
-// import * as Routes from '@/routes/.gen';
+import { renderTemplate, html } from './src/utils.js';
+import * as T from './src/templates/.gen.js';
+// import * as Routes from './src/routes/.gen.js';
 
 export async function onRequest(context) {
 	console.log(context.env);

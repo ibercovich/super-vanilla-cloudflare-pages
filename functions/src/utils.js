@@ -1,8 +1,8 @@
 import Mustache from 'mustache';
 // https://ejs.co/#docs // alternative in case mustache becomes limiting
-import * as T from '@/templates/.gen';
+import * as T from '../src/templates/.gen';
 import _404 from '../../pages/404.html';
-import { DBService } from '@/db';
+import { DBService } from '../src/db';
 
 // Join the strings and values to return the final HTML string
 // This is a simple version that lacks features of larger libraries
