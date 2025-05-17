@@ -23,7 +23,6 @@
 		"exec": "node build.js --production && wrangler pages dev --binding SALT_TOKEN=SALT_TOKEN_STRING"
 	},
 	"devDependencies": {
-		"esbuild": "^0.25.4",
 		"nodemon": "^3.1.10",
 		"prettier": "^3.5.3",
 		"wrangler": "^4.15.2"

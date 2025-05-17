@@ -1,11 +1,6 @@
 // build.js
 import fs from 'node:fs';
 import path from 'node:path';
-// import esbuild from 'esbuild';
-
-// Parse command line arguments to determine if we're in production mode
-// const args = process.argv.slice(2);
-// const isProd = args.includes('--production');
 
 // Configuration
 // Ideally this conf is an .env available to all functions
