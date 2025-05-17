@@ -6,11 +6,11 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "node build.js",
+		"build": "NO_BUILD=1 node build.js  --production",
 		"build:copy": "NO_BUILD=1 node build.js",
 		"deploy": "node build.js --production",
 		"reloader": "browser-sync start --config bs-config.cjs",
-		"dev": "SALT_TOKEN=SALT_TOKEN_STRING nodemon"
+		"dev": "SALT_TOKEN=SALT_TOKEN_STRING NO_BUILD=true nodemon"
 	},
 	"nodemonConfig": {
 		"watch": [
@@ -20,7 +20,7 @@
 		"ignore": [
 			"*.gen.*"
 		],
-		"exec": "node build.js && wrangler pages dev --binding SALT_TOKEN=SALT_TOKEN_STRING"
+		"exec": "node build.js --production && wrangler pages dev --binding SALT_TOKEN=SALT_TOKEN_STRING"
 	},
 	"devDependencies": {
 		"esbuild": "^0.25.4",
